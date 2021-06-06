@@ -1,0 +1,54 @@
+To run the project in development: `yarn api` on 1 terminal and `expo start` on another. Remember to check the port that is being used in `yarn api` and in "./src/services/api.ts".
+
+1º) `expo init <project_name>` where project_name=rentx
+
+2º) Inside project directory, `expo start`
+
+3º) To install styled-components: `yarn add styled-components`
+		and it's types: `yarn add -D @types/styled-components-react-native`
+
+4º) To install expo-fonts: `expo install expo-font @expo-google-fonts/<name_of_font_1> @expo-google-fonts/<name_of_font_2>`
+		where name_of_font_1=inter and name_of_font_2=archivo
+
+5º) To have a splash screen when app is loading: `expo install expo-app-loading`
+
+6º) To have global style we need to have it typed so it can be recognized by Typescript:
+		create src/styles/{theme.ts && styles.d.ts}
+
+7º) To handle svg: `expo install react-native-svg`
+		and to have them be their own component: `yarn add -D react-native-svg-transformer` (for that to work
+		we need to go to 'metro.config.js' and put the necessary stuff there).
+		For the assets to be recognized, we create src/@types/svg/index.d.ts
+
+8º) To have responsive font-size: `yarn add react-native-responsive-fontsize`
+
+9º) To handle iphone top chin: `yarn add react-native-iphone-x-helper`
+
+10º) Calendar: `yarn add react-native-calendars`
+
+11º) To have stack navigation: `yarn add @react-navigation/native`, then:
+		`expo install react-native-gesture-handler react-native-reanimated react-native-screens react-native-safe-area-context @react-native-community/masked-view`, then:
+		`yarn add @react-navigation/stack`
+
+12º) To pretend there is an api (development only): `npm i -g json-server`, then, to use it:
+		`json-server ./src/services/server.json --host <myIpAddress=192.168.0.106> --port <port=3333> --delay 700`
+
+13º) To handle HTTP reqs: `yarn add axios`, then created ./src/services/api.ts
+
+14º) To handle date periods: `yarn add date-fns`
+
+15º) To have animations: `expo install react-native-reanimated` and add to babel.config.js: `
+	[...]
+	return {
+		[...]
+    plugins: ['react-native-reanimated/plugin']
+	}
+	[...]`
+
+16º) To have splash screen animation: `expo install expo-splash-screen`, then, on app.json, add:
+  `"splash": {
+    "image": <pathToYourAsset||SplashScreen>
+		"backgroundColor": <ifYouWant>
+  }`
+
+17º) To have Lottie animations: `expo install lottie-react-native`
