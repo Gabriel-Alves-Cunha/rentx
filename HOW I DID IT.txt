@@ -52,3 +52,8 @@ To run the project in development: `yarn api` on 1 terminal and `expo start` on 
   }`
 
 17º) To have Lottie animations: `expo install lottie-react-native`
+
+-----------------------------------------------------------
+week_4: (offline app)
+
+

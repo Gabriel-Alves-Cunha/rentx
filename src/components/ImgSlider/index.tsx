@@ -1,17 +1,23 @@
 import React, { useRef, useState } from "react";
 import { ViewToken } from "react-native";
 
+import { Bullet } from "../Bullet";
+
 import {
 	Container,
 	ImgIndexes,
-	ImgIndex,
 	CarImgWrapper,
 	CarImg,
 	CarImgsList,
 } from "./styles";
 
-export interface ImgProps {
-	imgsUrl: string[];
+export interface Img {
+	id: string;
+	photo: string;
+}
+
+interface Props {
+	imgs: Img[];
 }
 
 interface ChangeImgProps {
@@ -19,7 +25,7 @@ interface ChangeImgProps {
 	changed: ViewToken[];
 }
 
-export function ImgSlider({ imgsUrl }: ImgProps) {
+export function ImgSlider({ imgs }: Props) {
 	const [imgIndex, setImgIndex] = useState(0);
 
 	const indexChanged = useRef((info: ChangeImgProps) => {
@@ -30,17 +36,17 @@ export function ImgSlider({ imgsUrl }: ImgProps) {
 	return (
 		<Container>
 			<ImgIndexes>
-				{imgsUrl.map((_url, index) => (
-					<ImgIndex key={index} active={index === imgIndex} />
+				{imgs.map((item, index) => (
+					<Bullet key={item.id} active={index === imgIndex} />
 				))}
 			</ImgIndexes>
 
 			<CarImgsList
-				data={imgsUrl}
-				keyExtractor={(key) => key}
-				renderItem={({ item: uri }) => (
+				data={imgs}
+				keyExtractor={(item) => item.id}
+				renderItem={({ item }) => (
 					<CarImgWrapper>
-						<CarImg source={{ uri }} resizeMode="contain" />
+						<CarImg source={{ uri: item.photo }} resizeMode="contain" />
 					</CarImgWrapper>
 				)}
 				horizontal

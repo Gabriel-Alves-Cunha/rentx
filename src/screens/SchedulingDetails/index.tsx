@@ -57,9 +57,9 @@ export function SchedulingDetails() {
 	const route = useRoute();
 	const { car, dates } = route.params as Params;
 
-	const rentTotal = Number(dates.length * car.rent.price);
+	const rentTotal = Number(dates.length * car.price);
 
-	async function handleNavigate2SchedulingComplete() {
+	async function handleNavigate2Confirmation() {
 		setIsLoading(true);
 
 		const schedulesByCar = await api
@@ -101,7 +101,11 @@ export function SchedulingDetails() {
 				unavailable_dates,
 			})
 			.then((_res) => {
-				nav.navigate("SchedulingComplete");
+				nav.navigate("Confirmation", {
+					nextScreenRoute: "Home",
+					title: "Carro alugado",
+					message: `Agora você só precisa ir\naté a concessionária da Rentx\npegar seu automóvel.`,
+				});
 			})
 			.catch((error) => {
 				console.error(error);
@@ -136,7 +140,7 @@ export function SchedulingDetails() {
 			</Header>
 
 			<CarImgs>
-				<ImgSlider imgsUrl={car.photos} />
+				<ImgSlider imgs={car.photos} />
 			</CarImgs>
 
 			<Content>
@@ -147,8 +151,8 @@ export function SchedulingDetails() {
 					</Description>
 
 					<Rent>
-						<Period>{car.rent.period}</Period>
-						<Price>R$ {car.rent.price}</Price>
+						<Period>{car.period}</Period>
+						<Price>R$ {car.price}</Price>
 					</Rent>
 				</Details>
 
@@ -192,7 +196,7 @@ export function SchedulingDetails() {
 					<RentalPriceLabel>TOTAL</RentalPriceLabel>
 					<RentalPriceDetails>
 						<RentalPriceQuota>
-							R$ {car.rent.price} x{dates.length} diárias
+							R$ {car.price} x{dates.length} diárias
 						</RentalPriceQuota>
 						<RentalPriceTotal>R$ {rentTotal}</RentalPriceTotal>
 					</RentalPriceDetails>
@@ -203,7 +207,7 @@ export function SchedulingDetails() {
 				<Button
 					title="Alugar agora"
 					color={theme.colors.success}
-					onPress={handleNavigate2SchedulingComplete}
+					onPress={handleNavigate2Confirmation}
 					enabled={!isLoading}
 					isLoading={isLoading}
 				/>

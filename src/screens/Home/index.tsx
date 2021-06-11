@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import Animated, {
-	useSharedValue,
-	useAnimatedStyle,
-	useAnimatedGestureHandler,
-	withSpring,
-} from "react-native-reanimated";
-import { RectButton, PanGestureHandler } from "react-native-gesture-handler";
-import { StatusBar, StyleSheet, BackHandler } from "react-native";
+// import {
+// 	useSharedValue,
+// 	useAnimatedStyle,
+// 	useAnimatedGestureHandler,
+// 	withSpring,
+// } from "react-native-reanimated";
+//import { RectButton, PanGestureHandler } from "react-native-gesture-handler";
+//import { Ionicons } from "@expo/vector-icons";
+import { StatusBar, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "styled-components";
 import { RFValue } from "react-native-responsive-fontsize";
 
@@ -27,7 +27,7 @@ import {
 	CarList,
 } from "./styles";
 
-const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
+//const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
 
 export function Home() {
 	const nav = useNavigation();
@@ -36,37 +36,31 @@ export function Home() {
 	const [cars, setCars] = useState<CarDTO[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
-	const positionY = useSharedValue(0);
-	const positionX = useSharedValue(0);
-	const myCarsButtonAnimatedStyle = useAnimatedStyle(() => {
-		return {
-			transform: [
-				{ translateX: positionX.value },
-				{ translateY: positionY.value },
-			],
-		};
-	});
-	const onGestureEvent = useAnimatedGestureHandler({
-		onStart(_event, ctx: any) {
-			ctx.positionX = positionX.value;
-			ctx.positionY = positionY.value;
-		},
-		onActive(event, ctx: any) {
-			positionX.value = ctx.positionX + event.translationX;
-			positionY.value = ctx.positionY + event.translationY;
-		},
-		onEnd() {
-			positionX.value = withSpring(0);
-			positionY.value = withSpring(0);
-		},
-	});
+	// const positionY = useSharedValue(0);
+	// const positionX = useSharedValue(0);
+	// const myCarsButtonAnimatedStyle = useAnimatedStyle(() => ({
+	// 	transform: [
+	// 		{ translateX: positionX.value },
+	// 		{ translateY: positionY.value },
+	// 	],
+	// }));
+	// const onGestureEvent = useAnimatedGestureHandler({
+	// 	onStart(_event, ctx: any) {
+	// 		ctx.positionX = positionX.value;
+	// 		ctx.positionY = positionY.value;
+	// 	},
+	// 	onActive(event, ctx: any) {
+	// 		positionX.value = ctx.positionX + event.translationX;
+	// 		positionY.value = ctx.positionY + event.translationY;
+	// 	},
+	// 	onEnd() {
+	// 		positionX.value = withSpring(0);
+	// 		positionY.value = withSpring(0);
+	// 	},
+	// });
 
 	function handleNavigate2CarDetails(car: CarDTO) {
 		nav.navigate("CarDetails", { car });
-	}
-
-	function handleNavigate2MyScheduledCars() {
-		nav.navigate("MyScheduledCars");
 	}
 
 	useEffect(() => {
@@ -76,15 +70,23 @@ export function Home() {
 				setCars(res.data);
 			} catch (error) {
 				console.error(error);
+				Alert.alert("Failed to get you'r scheduled cars. Please try again.");
 			} finally {
 				setIsLoading(false);
 			}
 		})();
 	}, []);
 
-	useEffect(() => {
-		BackHandler.addEventListener("hardwareBackPress", () => true);
-	}, []);
+	// useFocusEffect(
+	// 	useCallback(() => {
+	// 		const backPressEventFn = () => true;
+
+	// 		BackHandler.addEventListener("hardwareBackPress", backPressEventFn);
+
+	// 		return () =>
+	// 			BackHandler.removeEventListener("hardwareBackPress", backPressEventFn);
+	// 	}, [])
+	// );
 
 	return (
 		<Container>
@@ -113,7 +115,7 @@ export function Home() {
 				/>
 			)}
 
-			<PanGestureHandler onGestureEvent={onGestureEvent}>
+			{/*<PanGestureHandler onGestureEvent={onGestureEvent}>
 				<Animated.View
 					style={[
 						myCarsButtonAnimatedStyle,
@@ -131,17 +133,17 @@ export function Home() {
 						/>
 					</ButtonAnimated>
 				</Animated.View>
-			</PanGestureHandler>
+				</PanGestureHandler>*/}
 		</Container>
 	);
 }
 
-const styles = StyleSheet.create({
-	button: {
-		width: 60,
-		height: 60,
-		borderRadius: 30,
-		justifyContent: "center",
-		alignItems: "center",
-	},
-});
+// const styles = StyleSheet.create({
+// 	button: {
+// 		width: 60,
+// 		height: 60,
+// 		borderRadius: 30,
+// 		justifyContent: "center",
+// 		alignItems: "center",
+// 	},
+// });
