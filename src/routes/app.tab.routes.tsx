@@ -9,7 +9,7 @@ import CarSvg from "../assets/car.svg";
 
 import { MyScheduledCars } from "../screens/MyScheduledCars";
 import { AppStackRoutes } from "./app.stack.routes";
-import { Home } from "../screens/Home";
+import { Profile } from "../screens/Profile";
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
@@ -17,7 +17,7 @@ export function AppTabRoutes() {
 	const theme = useTheme();
 
 	return (
-		// This is an unordered list of screens
+		// This is an ordered list of screens
 		<Navigator
 			tabBarOptions={{
 				activeTintColor: theme.colors.main,
@@ -50,7 +50,7 @@ export function AppTabRoutes() {
 			/>
 			<Screen
 				name="Profile"
-				component={Home}
+				component={Profile}
 				options={{
 					tabBarIcon: ({ color }) => (
 						<PeopleSvg width={24} height={24} fill={color} />

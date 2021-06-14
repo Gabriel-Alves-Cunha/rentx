@@ -17,9 +17,9 @@ interface Params {
 }
 
 export function Confirmation() {
+	const width = useWindowDimensions().width; // use `useWindowDimensions` when inside a component
 	const nav = useNavigation();
 	const theme = useTheme();
-	const width = useWindowDimensions().width; // use useWi[...] when inside a component
 	const route = useRoute();
 	const { title, message, nextScreenRoute } = route.params as Params;
 

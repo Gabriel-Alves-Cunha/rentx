@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Alert, StatusBar } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import { AntDesign } from "@expo/vector-icons";
 import { useTheme } from "styled-components";
 
+import { Car as CarModel } from "../../database/model/Car";
 import { LoadAnimation } from "../../components/LoadAnimation";
 import { BackButton } from "../../components/BackButton";
-import { CarDTO } from "../../DTOS/CarDTO";
 import { Car } from "../../components/Car";
 import { api } from "../../services/api";
 
@@ -27,11 +27,13 @@ import {
 	MyScheduledCarsList,
 	LoadContainer,
 } from "./styles";
+import { awaitResOrErr } from "../../../await";
+import { format } from "date-fns/esm";
+import { parseISO } from "date-fns";
 
 export interface CarProps {
 	id: string;
-	car: CarDTO;
-	user_id: string;
+	car: CarModel;
 	startDate: string;
 	endDate: string;
 }
@@ -39,6 +41,7 @@ export interface CarProps {
 export function MyScheduledCars() {
 	const nav = useNavigation();
 	const theme = useTheme();
+	const isScreenFocused = useIsFocused();
 
 	const [myScheduledCars, setMyScheduledCars] = useState<CarProps[]>(
 		[] as CarProps[]
@@ -50,22 +53,37 @@ export function MyScheduledCars() {
 	}
 
 	useEffect(() => {
-		(async function fetchMyScheduledCars() {
-			try {
-				const res = await api.get("/schedules_byuser?user_id=1");
+		let isMounted = true;
 
-				//console.log(res.data);
-				setMyScheduledCars(res.data);
-			} catch (error) {
-				console.error(error);
+		(async function fetchMyScheduledCars() {
+			const [res, error] = await awaitResOrErr(
+				api.get("/rentals"),
+				"Error from fetchMyScheduledCars: "
+			);
+
+			if (error) {
 				Alert.alert(
-					"Não foi possível conectar com o servidor. Tente novamente mais tarde :("
+					"Não foi possível conectar com o servidor!",
+					"Tente novamente mais tarde :("
 				);
-			} finally {
-				setIsLoading(false);
+			} else if (isMounted) {
+				console.log("response.data from fetchMyScheduledCars:", res.data);
+				const dataFormatted = res.data.map((data: CarProps) => ({
+					id: data.id,
+					car: data.car,
+					startDate: format(parseISO(data.startDate), "dd/MM/yyyy"),
+					endDate: format(parseISO(data.endDate), "dd/MM/yyyy"),
+				}));
+				setMyScheduledCars(dataFormatted);
 			}
+
+			setIsLoading(false);
 		})();
-	}, []);
+
+		return () => {
+			isMounted = false;
+		};
+	}, [isScreenFocused]);
 
 	return (
 		<Container>
@@ -80,11 +98,7 @@ export function MyScheduledCars() {
 					color={theme.colors.shape}
 				/>
 
-				<Title>
-					Escolha uma{"\n"}
-					data de início e{"\n"}
-					fim de aluguel
-				</Title>
+				<Title>Seus carros{"\n"}alugados</Title>
 
 				<SubTitle>Conforto, segurança e praticidade.</SubTitle>
 			</Header>
@@ -105,7 +119,7 @@ export function MyScheduledCars() {
 						keyExtractor={(item) => item.id}
 						renderItem={({ item }) => (
 							<CarWrapper>
-								<Car data={item.car} />
+								<Car carData={item.car} />
 								<CarFooter>
 									<CarFooterTitle>Período</CarFooterTitle>
 									<CarFooterPeriod>

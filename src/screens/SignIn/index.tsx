@@ -1,12 +1,12 @@
 import React, { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import * as Yup from "yup";
 import {
 	KeyboardAvoidingView,
 	TouchableWithoutFeedback,
 	Keyboard,
 	Alert,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import * as Yup from "yup";
 
 import { PasswordInput } from "../../components/PasswordInput";
 import { useAuth } from "../../hooks/auth";

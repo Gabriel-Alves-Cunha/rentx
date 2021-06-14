@@ -23,7 +23,7 @@ import {
 	FormTitle,
 } from "./styles";
 
-const schema = Yup.object().shape({
+export const schema = Yup.object().shape({
 	name: Yup.string().required("Nome é obrigatório"),
 	email: Yup.string().email("E-mail inválido").required("E-mail é obrigatório"),
 	driverLicense: Yup.string().required("CNH é obrigatório"),

@@ -56,4 +56,15 @@ To run the project in development: `yarn api` on 1 terminal and `expo start` on 
 -----------------------------------------------------------
 week_4: (offline app)
 
-
+1º) To include watermelondb (FOLLOW DOCUMENTATION): `yarn add @nozbe/watermelondb` -> `yarn add -D @babel/plugin-proposal-decorators` -> include in babel.config.js: `
+		[...],
+		plugins: [
+				[...],
+				["@babel/plugin-proposal-decorators", { legacy: true }],
+				[...]
+		]
+	};
+};
+`. Now to run the app, do in 1 terminal: `yarn start`, then, in another terminal: `yarn run android`.
+	Then I created the model and schema on `./src/database/` and exported it all through `./src/database/schema/index.ts`,
+	and then, made the index.ts at the database folder.

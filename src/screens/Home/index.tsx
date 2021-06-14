@@ -7,15 +7,19 @@ import React, { useEffect, useState } from "react";
 // } from "react-native-reanimated";
 //import { RectButton, PanGestureHandler } from "react-native-gesture-handler";
 //import { Ionicons } from "@expo/vector-icons";
-import { StatusBar, Alert } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { synchronize } from "@nozbe/watermelondb/sync";
+import { useNetInfo } from "@react-native-community/netinfo";
+import { StatusBar } from "react-native";
 import { useTheme } from "styled-components";
 import { RFValue } from "react-native-responsive-fontsize";
 
 import Logo from "../../assets/logo.svg";
 
+import { Car as CarModel, carsTable } from "../../database/model/Car";
 import { LoadAnimation } from "../../components/LoadAnimation";
-import { CarDTO } from "../../DTOS/CarDTO";
+import { awaitResOrErr } from "../../../await";
+import { localDatabase } from "../../database";
 import { Car } from "../../components/Car";
 import { api } from "../../services/api";
 
@@ -26,14 +30,17 @@ import {
 	HeaderContainer,
 	CarList,
 } from "./styles";
+import { OfflineInfo } from "../CarDetails/styles";
 
 //const ButtonAnimated = Animated.createAnimatedComponent(RectButton);
 
 export function Home() {
+	const netInfo = useNetInfo();
 	const nav = useNavigation();
 	const theme = useTheme();
+	const isScreenFocused = useIsFocused();
 
-	const [cars, setCars] = useState<CarDTO[]>([]);
+	const [cars, setCars] = useState<CarModel[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
 	// const positionY = useSharedValue(0);
@@ -59,23 +66,66 @@ export function Home() {
 	// 	},
 	// });
 
-	function handleNavigate2CarDetails(car: CarDTO) {
+	function handleNavigate2CarDetails(car: CarModel) {
 		nav.navigate("CarDetails", { car });
 	}
 
+	async function offlineSynchronize() {
+		await awaitResOrErr(
+			synchronize({
+				database: localDatabase,
+				pullChanges: async ({ lastPulledAt }) => {
+					// trazer
+					const [response, _error] = await awaitResOrErr(
+						api.get(`cars/sync/pull?lastPulledVersion=${lastPulledAt ?? 0}`),
+						"Error from pullChanges: "
+					);
+					console.log(
+						"pullChanges response.data:",
+						JSON.stringify(response.data)
+					);
+					const { changes, latestVersion } = response.data;
+					return { changes, timestamp: latestVersion };
+				},
+				pushChanges: async ({ changes }) => {
+					// empurrar
+					const user = changes.users;
+					await awaitResOrErr(
+						api.post("/users/sync", user),
+						"Error from pushChanges: "
+					);
+				},
+			})
+		);
+	}
+
 	useEffect(() => {
+		let isMounted = true;
+
 		(async function fetchCars() {
-			try {
-				const res = await api.get("/cars");
-				setCars(res.data);
-			} catch (error) {
-				console.error(error);
-				Alert.alert("Failed to get you'r scheduled cars. Please try again.");
-			} finally {
+			const carsCollection = localDatabase.get<CarModel>(carsTable);
+			const [cars, error] = await awaitResOrErr(
+				carsCollection.query().fetch(),
+				"Failed to connect. Please try again."
+			);
+
+			if (error) return;
+
+			console.log("Cars:", cars);
+			if (isMounted) {
 				setIsLoading(false);
+				setCars(cars);
 			}
 		})();
-	}, []);
+
+		return () => {
+			isMounted = false;
+		};
+	}, [isScreenFocused]);
+
+	useEffect(() => {
+		if (netInfo.isConnected === true) offlineSynchronize();
+	}, [netInfo.isConnected]);
 
 	// useFocusEffect(
 	// 	useCallback(() => {
@@ -110,9 +160,16 @@ export function Home() {
 					data={cars}
 					keyExtractor={(item) => item.id}
 					renderItem={({ item }) => (
-						<Car data={item} onPress={() => handleNavigate2CarDetails(item)} />
+						<Car
+							carData={item}
+							onPress={() => handleNavigate2CarDetails(item)}
+						/>
 					)}
 				/>
+			)}
+
+			{netInfo.isConnected === false && (
+				<OfflineInfo>Conecte-se à internet para mais informações!</OfflineInfo>
 			)}
 
 			{/*<PanGestureHandler onGestureEvent={onGestureEvent}>
